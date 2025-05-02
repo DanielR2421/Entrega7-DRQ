@@ -6,20 +6,20 @@ int nSamples;
 float[] rank;
 float[] name;
 float[] year;
-float[] naSales;
-float[] euSales;
-float[] jpSales;
-float[] globalSales;
+float[] duration;
+float[] numOfRatings;
+float[] rating;
+float[] metaScore;
 
 // Variables para la visualización en espiral
 float centroX, centroY;
 float radioInterno = 100;
 float rotacion = 0;
 float maxRank = 0;
-float maxNaSales = 0;
-float maxEuSales = 0;
-float maxJpSales = 0;
-float maxGlobalSales = 0;
+float maxCertificate = 0;
+float maxrunTime = 0;
+float maxRating = 0;
+float maxMetaScore = 0;
 
 void setup() {
   size(1000, 1000);
@@ -27,7 +27,7 @@ void setup() {
   centroY = height / 2;
   
   // Cargar los datos
-  table = loadTable("vgsales.csv", "header");
+  table = loadTable("imdb_kaggle.csv", "header");
   
   // Guardar el número de filas en la tabla
   nSamples = table.getRowCount();
@@ -36,25 +36,25 @@ void setup() {
   rank = new float[nSamples];
   name = new float[nSamples];
   year = new float[nSamples];
-  naSales = new float[nSamples];
-  euSales = new float[nSamples];
-  jpSales = new float[nSamples];
-  globalSales = new float[nSamples];
+  duration = new float[nSamples];
+  numOfRatings = new float[nSamples];
+  rating = new float[nSamples];
+  metaScore = new float[nSamples];
   
   // Asignamos los datos
   for (int i = 0; i < nSamples; i++) {
-    rank[i] = table.getFloat(i, "Rank");
-    name[i] = table.getFloat(i, "Name");
-    year[i] = table.getFloat(i, "Year");
-    naSales[i] = table.getFloat(i, "NA_Sales");
-    euSales[i] = table.getFloat(i, "EU_Sales");
-    jpSales[i] = table.getFloat(i, "JP_Sales");
-    globalSales[i] = table.getFloat(i, "Global_Sales");
+    rank[i] = table.getFloat(i, "rank");
+    name[i] = table.getFloat(i, "name");
+    year[i] = table.getFloat(i, "year");
+    duration[i] = table.getFloat(i, "duration");
+    numOfRatings[i] = table.getFloat(i, "numberof_ratings");
+    rating[i] = table.getFloat(i, "rating");
+    metaScore[i] = table.getFloat(i, "Metascore");
     
     // Encontrar valores máximos para escalar correctamente
     // Toca corregir y terminar porque solo hay un circulo y 2 lineas
     if (rank[i] > maxRank) maxRank = rank[i];
-    if (naSales[i] > maxNaSales) maxNaSales = naSales[i];
+    if (rating[i] > maxRating) maxRating = rating[i];
     //Tiene que haber un circulo para cada ranking
   }
   
@@ -136,7 +136,7 @@ void dibujarDatosEspiral() {
     float y3 = centroY + sin(angulo2) * radioInterno;
     
     // Longitud de línea basada en batería
-    float longitud2 = map(naSales[i], 0, maxNaSales, 20, 200);
+    float longitud2 = map(rating[i], 0, maxRating, 20, 200);
     
     // Efecto espiral para la segunda serie
     float anguloFinal2 = angulo2 + factorEspiral;
