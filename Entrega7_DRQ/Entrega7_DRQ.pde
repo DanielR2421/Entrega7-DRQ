@@ -1,5 +1,5 @@
 // Combinación de código para visualización de datos tipo espiral
-// Cambiar csv por el de video juegos
+// Cambiar csv por el de Peliculas, es mas leible, el actual de video juegos tiene 11000 datos
 
 Table table;
 int nSamples;
