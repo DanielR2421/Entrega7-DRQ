@@ -60,8 +60,31 @@ void setup() {
     rank[i] = table.getFloat(i, "rank");
     names[i] = table.getString(i, "name");
     rating[i] = table.getFloat(i, "rating");
-    duration[i] = table.getFloat(i, "duration");
+    
+    // Asegurar que los datos de duración se cargan correctamente
+    // Asumimos que la duración podría estar como String en el CSV
+    String durStr = table.getString(i, "duration");
+    if (durStr != null && !durStr.trim().isEmpty()) {
+      // Eliminar cualquier texto adicional (como "min" o "minutes")
+      durStr = durStr.replaceAll("[^0-9]", "");
+      try {
+        duration[i] = Float.parseFloat(durStr);
+      } catch (Exception e) {
+        duration[i] = 0; // Valor por defecto si hay error
+        println("Error en duración para película " + names[i] + ": " + durStr);
+      }
+    } else {
+      // Intentar cargar directamente como float si está disponible así
+      duration[i] = table.getFloat(i, "duration");
+    }
+    
     metaScore[i] = table.getFloat(i, "Metascore");
+  }
+  
+  // Verificar los datos de duración después de cargarlos
+  println("Verificando datos de duración:");
+  for (int i = 0; i < min(10, nSamples); i++) {
+    println("Película " + names[i] + ": " + duration[i] + " minutos");
   }
   
   textAlign(CENTER, CENTER);
@@ -224,7 +247,14 @@ void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titu
     if (i % 25 == 0) {
       fill(255);
       textSize(12);
-      text(nf(datos[i], 0, 1), x2 + cos(anguloFinal) * 12, y2 + sin(anguloFinal) * 12);
+      
+      // Formato especial para duración
+      if (circuloActivo == 2) {
+        int minutos = int(datos[i]);
+        text(minutos + " min", x2 + cos(anguloFinal) * 12, y2 + sin(anguloFinal) * 12);
+      } else {
+        text(nf(datos[i], 0, 1), x2 + cos(anguloFinal) * 12, y2 + sin(anguloFinal) * 12);
+      }
     }
   }
 }
