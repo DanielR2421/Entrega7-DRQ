@@ -79,7 +79,8 @@ void draw() {
   
   // Dibujar título principal
   fill(255);
-  textSize(36);
+  textSize(40);  // Tamaño aumentado
+  textAlign(CENTER, CENTER);
   text("IMDB Movies Visualization", width/2, 80);
   
   // Dibujar el círculo activo
@@ -101,16 +102,16 @@ void draw() {
     tiempoMostrar--;
   }
   
-  // Instrucciones en las esquinas inferiores
+  // Instrucciones en las esquinas inferiores con tamaño agrandado
   fill(200);
-  textSize(14);
+  textSize(18);  // Tamaño aumentado
   textAlign(LEFT);
-  text("Haz clic para ver nombres", 20, height - 20);
-  text("Espacio: Pausa", 20, height - 40);
+  text("Haz clic para ver nombres", 30, height - 30);
+  text("Espacio: Pausa", 30, height - 60);
   
   textAlign(RIGHT);
-  text("Flechas ◄ ► cambiar datos", width - 20, height - 20);
-  text("+/-: Ajustar cantidad", width - 20, height - 40);
+  text("Flechas ◄ ► cambiar datos", width - 30, height - 30);
+  text("+/-: Ajustar cantidad", width - 30, height - 60);
   
   // Restablecer alineación
   textAlign(CENTER, CENTER);
@@ -156,20 +157,25 @@ void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titu
     ellipse(centroX, centroY, radio * 2, radio * 2);
   }
   
-  // Dibujar título en el centro con su color correspondiente
-  if (peliculaSeleccionada != "" && tiempoMostrar > 0) {
-    // Si hay una película seleccionada, mostrar su nombre
-    fill(255, 255, 0);  // Amarillo para destacar
-    String nombreMostrar = peliculaSeleccionada.length() > 30 ? 
-                          peliculaSeleccionada.substring(0, 27) + "..." : 
-                          peliculaSeleccionada;
-    text(nombreMostrar, centroX, centroY + 10);
-  }
-  
   // Mostrar el título de la categoría dentro del círculo central
   fill(colorCirculo);
-  textSize(24);
-  text(titulo, centroX, centroY);
+  textSize(28);  // Tamaño aumentado para el título de la categoría
+  text(titulo, centroX, centroY - 15);  // Subir el título un poco
+  
+  // Mostrar nombre de película seleccionada debajo del título
+  if (peliculaSeleccionada != "" && tiempoMostrar > 0) {
+    fill(255, 255, 0);  // Amarillo para destacar
+    textSize(16);  // Tamaño adecuado para el título de la película
+    
+    // Limitar el texto si es muy largo
+    String nombreMostrar = peliculaSeleccionada;
+    if (nombreMostrar.length() > 25) {
+      nombreMostrar = nombreMostrar.substring(0, 22) + "...";
+    }
+    
+    // Posicionar debajo del título de la categoría
+    text(nombreMostrar, centroX, centroY + 15);
+  }
   
   // Dibujar marcadores
   textSize(14);
