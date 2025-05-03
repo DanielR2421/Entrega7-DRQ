@@ -81,9 +81,6 @@ void draw() {
   fill(255);
   textSize(36);
   text("IMDB Movies Visualization", width/2, 80);
-  textSize(20);
-  text("Haz clic para ver nombres | Espacio: Pausa | +/-: Ajustar datos", width/2, 120);
-  text("Usa las flechas del teclado para cambiar entre visualizaciones", width/2, 150);
   
   // Dibujar el círculo activo
   if (circuloActivo == 0) {
@@ -103,18 +100,32 @@ void draw() {
   if (tiempoMostrar > 0) {
     tiempoMostrar--;
   }
+  
+  // Instrucciones en las esquinas inferiores
+  fill(200);
+  textSize(14);
+  textAlign(LEFT);
+  text("Haz clic para ver nombres", 20, height - 20);
+  text("Espacio: Pausa", 20, height - 40);
+  
+  textAlign(RIGHT);
+  text("Flechas ◄ ► cambiar datos", width - 20, height - 20);
+  text("+/-: Ajustar cantidad", width - 20, height - 40);
+  
+  // Restablecer alineación
+  textAlign(CENTER, CENTER);
 }
 
 void drawCircleIndicator() {
-  // Dibujar pequeños indicadores en la parte inferior para mostrar qué círculo está activo
-  float indicatorY = height - 50;
+  // Dibujar pequeños indicadores en la parte inferior central para mostrar qué círculo está activo
+  float indicatorY = height - 80;
   float spacing = 30;
   float startX = width/2 - (spacing * 1.5);
   
   for (int i = 0; i < 4; i++) {
     float x = startX + (i * spacing);
     
-    // Dibujar círculo
+    // Dibujar círculo con el color correspondiente
     if (i == circuloActivo) {
       // Círculo activo: más grande y lleno
       fill(colores[i]);
@@ -127,11 +138,6 @@ void drawCircleIndicator() {
       ellipse(x, indicatorY, 15, 15);
     }
   }
-  
-  // Dibujar texto para las teclas de flecha
-  fill(255);
-  textSize(14);
-  text("◄ ►", width/2, indicatorY + 30);
 }
 
 void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titulo) {
@@ -150,29 +156,20 @@ void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titu
     ellipse(centroX, centroY, radio * 2, radio * 2);
   }
   
-  // Dibujar título principal del círculo
-  fill(colorCirculo);
-  textSize(28);
-  text(titulo, centroX, centroY - radioInterno - 30);
-  
-  // Dibujar título o nombre de película en el centro
+  // Dibujar título en el centro con su color correspondiente
   if (peliculaSeleccionada != "" && tiempoMostrar > 0) {
-    // Mostrar título y nombre de película
-    fill(255);
-    textSize(18);
-    text(titulo, centroX, centroY - 20);
-    
+    // Si hay una película seleccionada, mostrar su nombre
     fill(255, 255, 0);  // Amarillo para destacar
     String nombreMostrar = peliculaSeleccionada.length() > 30 ? 
                           peliculaSeleccionada.substring(0, 27) + "..." : 
                           peliculaSeleccionada;
     text(nombreMostrar, centroX, centroY + 10);
-  } else {
-    // Solo mostrar título
-    fill(255);
-    textSize(24);
-    text(titulo, centroX, centroY);
   }
+  
+  // Mostrar el título de la categoría dentro del círculo central
+  fill(colorCirculo);
+  textSize(24);
+  text(titulo, centroX, centroY);
   
   // Dibujar marcadores
   textSize(14);
