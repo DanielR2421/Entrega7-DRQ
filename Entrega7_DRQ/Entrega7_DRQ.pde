@@ -7,17 +7,15 @@ float[] duration;
 float[] metaScore;
 
 // Variables para la visualización
-float radioInterno = 100;  
+float radioInterno = 120;  
 float rotacion = 0;
 int muestraDatos = 250;  
 
-// Posiciones de los cuatro círculos - Ajustadas para asegurar visibilidad
-float[][] centros = {
-  {width/4, height/4},      // Círculo 1 (Rank)
-  {3*width/4, height/4},    // Círculo 2 (Rating) 
-  {width/4, 3*height/4},    // Círculo 3 (Duration)
-  {3*width/4, 3*height/4}   // Círculo 4 (Metascore)
-};
+// Centro del canvas
+float centroX, centroY;
+
+// Índice del círculo actualmente mostrado (0: Rank, 1: Rating, 2: Duration, 3: Metascore)
+int circuloActivo = 0;
 
 // Colores para cada círculo
 color[] colores = {
@@ -32,7 +30,6 @@ String[] titulos = {"Rank", "Rating", "Duration", "Metascore"};
 
 // Variables para mostrar información al hacer clic
 String peliculaSeleccionada = "";
-int circuloSeleccionado = -1;
 int tiempoMostrar = 0;
 
 // Arrays para coordenadas de puntos
@@ -40,13 +37,11 @@ float[][] puntosX = new float[4][1000];  // [círculo][punto]
 float[][] puntosY = new float[4][1000];
 
 void setup() {
-  size(1800, 1800);  // Canvas ampliado
+  size(1200, 900);  // Canvas ampliado
   
-  // Recalcular posiciones de círculos después de establecer el tamaño
-  centros[0][0] = width/4;    centros[0][1] = height/4;
-  centros[1][0] = 3*width/4;  centros[1][1] = height/4;
-  centros[2][0] = width/4;    centros[2][1] = 3*height/4;
-  centros[3][0] = 3*width/4;  centros[3][1] = 3*height/4;
+  // Calcular el centro del canvas
+  centroX = width/2;
+  centroY = height/2;
   
   // Cargar los datos
   table = loadTable("imdb_kaggle.csv", "header");
@@ -73,10 +68,7 @@ void setup() {
   frameRate(30);
   
   println("Canvas size: " + width + "x" + height);
-  println("Círculo 1 (Rank): " + centros[0][0] + ", " + centros[0][1]);
-  println("Círculo 2 (Rating): " + centros[1][0] + ", " + centros[1][1]);
-  println("Círculo 3 (Duration): " + centros[2][0] + ", " + centros[2][1]);
-  println("Círculo 4 (Metascore): " + centros[3][0] + ", " + centros[3][1]);
+  println("Centro del canvas: " + centroX + ", " + centroY);
 }
 
 void draw() {
@@ -89,33 +81,60 @@ void draw() {
   fill(255);
   textSize(36);
   text("IMDB Movies Visualization", width/2, 80);
+  textSize(20);
   text("Haz clic para ver nombres | Espacio: Pausa | +/-: Ajustar datos", width/2, 120);
+  text("Usa las flechas del teclado para cambiar entre visualizaciones", width/2, 150);
   
-  // Dibujar los cuatro círculos con sus datos
-  dibujarCirculo(0, rank, 1000);     // Círculo 1: Rank (valor máximo aproximado)
-  dibujarCirculo(1, rating, 10);     // Círculo 2: Rating (escala 0-10)
-  dibujarCirculo(2, duration, 300);  // Círculo 3: Duration (minutos)
-  dibujarCirculo(3, metaScore, 100); // Círculo 4: Metascore (escala 0-100)
+  // Dibujar el círculo activo
+  if (circuloActivo == 0) {
+    dibujarCirculo(rank, 1000, colores[0], titulos[0]);     // Rank
+  } else if (circuloActivo == 1) {
+    dibujarCirculo(rating, 10, colores[1], titulos[1]);     // Rating
+  } else if (circuloActivo == 2) {
+    dibujarCirculo(duration, 300, colores[2], titulos[2]);  // Duration
+  } else if (circuloActivo == 3) {
+    dibujarCirculo(metaScore, 100, colores[3], titulos[3]); // Metascore
+  }
+  
+  // Indicador de círculo activo
+  drawCircleIndicator();
   
   // Actualizar tiempo de visualización del nombre
   if (tiempoMostrar > 0) {
     tiempoMostrar--;
   }
-  
-  // Mostrar una etiqueta clara para cada cuadrante
-  for (int i = 0; i < 4; i++) {
-    fill(colores[i]);
-    textSize(28);
-    text(titulos[i], centros[i][0], centros[i][1] - radioInterno - 30);
-  }
 }
 
-void dibujarCirculo(int indiceCirculo, float[] datos, float maximo) {
-  // Posición y estilo del círculo
-  float centroX = centros[indiceCirculo][0];
-  float centroY = centros[indiceCirculo][1];
-  color colorCirculo = colores[indiceCirculo];
+void drawCircleIndicator() {
+  // Dibujar pequeños indicadores en la parte inferior para mostrar qué círculo está activo
+  float indicatorY = height - 50;
+  float spacing = 30;
+  float startX = width/2 - (spacing * 1.5);
   
+  for (int i = 0; i < 4; i++) {
+    float x = startX + (i * spacing);
+    
+    // Dibujar círculo
+    if (i == circuloActivo) {
+      // Círculo activo: más grande y lleno
+      fill(colores[i]);
+      ellipse(x, indicatorY, 20, 20);
+    } else {
+      // Círculos inactivos: más pequeños y huecos
+      noFill();
+      stroke(colores[i]);
+      strokeWeight(2);
+      ellipse(x, indicatorY, 15, 15);
+    }
+  }
+  
+  // Dibujar texto para las teclas de flecha
+  fill(255);
+  textSize(14);
+  text("◄ ►", width/2, indicatorY + 30);
+}
+
+void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titulo) {
   // Dibujar círculo central
   fill(0);
   stroke(colorCirculo, 100);
@@ -127,16 +146,21 @@ void dibujarCirculo(int indiceCirculo, float[] datos, float maximo) {
   stroke(colorCirculo, 40);
   strokeWeight(1);
   for (int i = 1; i <= 3; i++) {
-    float radio = radioInterno + (i * 90);
+    float radio = radioInterno + (i * 80);
     ellipse(centroX, centroY, radio * 2, radio * 2);
   }
   
-  // Dibujar título o nombre de película
-  if (circuloSeleccionado == indiceCirculo && peliculaSeleccionada != "" && tiempoMostrar > 0) {
+  // Dibujar título principal del círculo
+  fill(colorCirculo);
+  textSize(28);
+  text(titulo, centroX, centroY - radioInterno - 30);
+  
+  // Dibujar título o nombre de película en el centro
+  if (peliculaSeleccionada != "" && tiempoMostrar > 0) {
     // Mostrar título y nombre de película
     fill(255);
-    textSize(16);
-    text(titulos[indiceCirculo], centroX, centroY - 20);
+    textSize(18);
+    text(titulo, centroX, centroY - 20);
     
     fill(255, 255, 0);  // Amarillo para destacar
     String nombreMostrar = peliculaSeleccionada.length() > 30 ? 
@@ -146,8 +170,8 @@ void dibujarCirculo(int indiceCirculo, float[] datos, float maximo) {
   } else {
     // Solo mostrar título
     fill(255);
-    textSize(20);
-    text(titulos[indiceCirculo], centroX, centroY);
+    textSize(24);
+    text(titulo, centroX, centroY);
   }
   
   // Dibujar marcadores
@@ -170,14 +194,14 @@ void dibujarCirculo(int indiceCirculo, float[] datos, float maximo) {
     float x1 = centroX + cos(angulo) * radioInterno;
     float y1 = centroY + sin(angulo) * radioInterno;
     
-    float longitud = map(datos[i], 0, maximo, 30, 270);
+    float longitud = map(datos[i], 0, maximo, 20, 200);
     float anguloFinal = angulo + 0.1;  // Factor espiral
     float x2 = centroX + cos(anguloFinal) * (radioInterno + longitud);
     float y2 = centroY + sin(anguloFinal) * (radioInterno + longitud);
     
     // Guardar coordenadas para detección de clic
-    puntosX[indiceCirculo][i] = x2;
-    puntosY[indiceCirculo][i] = y2;
+    puntosX[circuloActivo][i] = x2;
+    puntosY[circuloActivo][i] = y2;
     
     // Dibujar línea
     stroke(colorCirculo, 180);
@@ -185,7 +209,7 @@ void dibujarCirculo(int indiceCirculo, float[] datos, float maximo) {
     line(x1, y1, x2, y2);
     
     // Dibujar punto
-    if (circuloSeleccionado == indiceCirculo && peliculaSeleccionada.equals(names[i]) && tiempoMostrar > 0) {
+    if (peliculaSeleccionada.equals(names[i]) && tiempoMostrar > 0) {
       fill(255);  // Punto destacado
       ellipse(x2, y2, 8, 8);
     } else {
@@ -203,28 +227,34 @@ void dibujarCirculo(int indiceCirculo, float[] datos, float maximo) {
 }
 
 void mousePressed() {
-  // Verificar si se hizo clic en algún punto
-  for (int c = 0; c < 4; c++) {
-    for (int i = 0; i < muestraDatos; i++) {
-      if (dist(mouseX, mouseY, puntosX[c][i], puntosY[c][i]) < 10) {
-        peliculaSeleccionada = names[i];
-        circuloSeleccionado = c;
-        tiempoMostrar = 180;  // ~6 segundos a 30 FPS
-        return;
-      }
+  // Verificar si se hizo clic en algún punto del círculo activo
+  for (int i = 0; i < muestraDatos; i++) {
+    if (dist(mouseX, mouseY, puntosX[circuloActivo][i], puntosY[circuloActivo][i]) < 10) {
+      peliculaSeleccionada = names[i];
+      tiempoMostrar = 180;  // ~6 segundos a 30 FPS
+      return;
     }
   }
 }
 
 void keyPressed() {
   if (key == ' ') {
+    // Espacio: pausa/reanuda la animación
     if (looping) noLoop();
     else loop();
-  }
-  if (key == '+' || key == '=') {
+  } else if (key == '+' || key == '=') {
+    // Aumentar cantidad de datos
     muestraDatos = min(nSamples, muestraDatos + 50);
-  }
-  if (key == '-' || key == '_') {
+  } else if (key == '-' || key == '_') {
+    // Reducir cantidad de datos
     muestraDatos = max(50, muestraDatos - 50);
+  } else if (keyCode == LEFT) {
+    // Flecha izquierda: círculo anterior
+    circuloActivo = (circuloActivo - 1 + 4) % 4;
+    peliculaSeleccionada = "";  // Limpiar selección al cambiar de círculo
+  } else if (keyCode == RIGHT) {
+    // Flecha derecha: círculo siguiente
+    circuloActivo = (circuloActivo + 1) % 4;
+    peliculaSeleccionada = "";  // Limpiar selección al cambiar de círculo
   }
 }
