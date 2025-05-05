@@ -106,7 +106,7 @@ void draw() {
   fill(255);
   textSize(40);  // Tamaño aumentado
   textAlign(CENTER, CENTER);
-  text("Top 1000 IMDB Movies Visualization", width/2, 80);
+  text("Top 1000 IMDB Movies", width/2, 80);
 
   // Dibujo del círculo móvil
   if (circuloActivo == 0) {
