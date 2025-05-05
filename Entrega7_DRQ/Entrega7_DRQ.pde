@@ -108,28 +108,28 @@ void draw() {
   textAlign(CENTER, CENTER);
   text("Top 1000 IMDB Movies Visualization", width/2, 80);
 
-  // Dibujar el círculo activo
+  // Dibujo del círculo móvil
   if (circuloActivo == 0) {
-    dibujarCirculo(rank, 1000, colores[0], titulos[0]);     // Rank
+    dibujarCirculo(rank, 1000, colores[0], titulos[0]);     // categoria de Rank
   } else if (circuloActivo == 1) {
-    dibujarCirculo(rating, 10, colores[1], titulos[1]);     // Rating
+    dibujarCirculo(rating, 10, colores[1], titulos[1]);     // categoria de Rating
   } else if (circuloActivo == 2) {
-    dibujarCirculo(duration, 300, colores[2], titulos[2]);  // Duration
+    dibujarCirculo(duration, 300, colores[2], titulos[2]);  // categoria de Duration
   } else if (circuloActivo == 3) {
-    dibujarCirculo(metaScore, 100, colores[3], titulos[3]); // Metascore
+    dibujarCirculo(metaScore, 100, colores[3], titulos[3]); // categoria de Metascore
   }
 
   // Indicador de círculo activo
   drawCircleIndicator();
 
-  // Actualizar tiempo de visualización del nombre
+  // Esto actualiza y muestra el titulo de la pelicula/ dato seleccionado por un tiempo de visualización 
   if (tiempoMostrar > 0) {
     tiempoMostrar--;
   }
 
-  // Instrucciones en las esquinas inferiores con tamaño agrandado
+  // Instrucciones para entender como funciona el la visualización de la base de datos en las esquinas inferiores 
   fill(200);
-  textSize(18);  // Tamaño aumentado
+  textSize(18); 
   textAlign(LEFT);
   text("Haz clic para ver nombres", 30, height - 30);
   text("Espacio: Pausa", 30, height - 60);
@@ -138,12 +138,12 @@ void draw() {
   text("Flechas ◄ ► cambiar datos", width - 30, height - 30);
   text("+/-: Ajustar cantidad", width - 30, height - 60);
 
-  // Restablecer alineación
+  // ALineación correcta de los textos
   textAlign(CENTER, CENTER);
 }
 
 void drawCircleIndicator() {
-  // Dibujar pequeños indicadores en la parte inferior central para mostrar qué círculo está activo
+  // Dibujo de pequeños indicadores en la parte inferior central que muestran qué círculo está activo o mejor dicho que se esta viendo
   float indicatorY = height - 80;
   float spacing = 30;
   float startX = width/2 - (spacing * 1.5);
@@ -151,7 +151,7 @@ void drawCircleIndicator() {
   for (int i = 0; i < 4; i++) {
     float x = startX + (i * spacing);
 
-    // Dibujar círculo con el color correspondiente
+    // Verificador del circulo con su color correspondiente osea rank = azul
     if (i == circuloActivo) {
       // Círculo activo: más grande y lleno
       fill(colores[i]);
@@ -167,13 +167,13 @@ void drawCircleIndicator() {
 }
 
 void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titulo) {
-  // Dibujar círculo central
+  // Dibujo del círculo central
   fill(0);
   stroke(colorCirculo, 100);
   strokeWeight(2);
   ellipse(centroX, centroY, radioInterno * 2, radioInterno * 2);
 
-  // Dibujar círculos concéntricos
+  // Dibujo de los círculos exteriores
   noFill();
   stroke(colorCirculo, 40);
   strokeWeight(1);
@@ -182,27 +182,27 @@ void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titu
     ellipse(centroX, centroY, radio * 2, radio * 2);
   }
 
-  // Mostrar el título de la categoría dentro del círculo central
+  // Acta se muestra el título de la categoría dentro del círculo central
   fill(colorCirculo);
-  textSize(28);  // Tamaño aumentado para el título de la categoría
-  text(titulo, centroX, centroY - 15);  // Subir el título un poco
+  textSize(28);  
+  text(titulo, centroX, centroY - 15);  
 
-  // Mostrar nombre de película seleccionada debajo del título
+  // Con este comando se muestra el nombre de película seleccionada debajo del título
   if (peliculaSeleccionada != "" && tiempoMostrar > 0) {
-    fill(255, 255, 0);  // Amarillo para destacar
-    textSize(16);  // Tamaño adecuado para el título de la película
+    fill(255, 255, 0);  // Amarillo para destacar - Cambiar luego
+    textSize(16);  
 
-    // Limitar el texto si es muy largo
+    // con esto se limita el texto si es muy largo el titulo de la pelicula y no entra dentro del circulo central
     String nombreMostrar = peliculaSeleccionada;
     if (nombreMostrar.length() > 25) {
       nombreMostrar = nombreMostrar.substring(0, 22) + "...";
     }
 
-    // Posicionar debajo del título de la categoría
+    // Posicion del titulo de las pelicula seleccionada debajo del título de la categoría
     text(nombreMostrar, centroX, centroY + 15);
   }
 
-  // Dibujar marcadores
+  // Dibujo de los marcadores/ lineas de las peliculas que rotan con el circulos
   textSize(14);
   for (int i = 0; i < 12; i++) {
     float angulo = map(i, 0, 12, 0, TWO_PI) + rotacion;
@@ -213,44 +213,44 @@ void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titu
     text(i+1, x, y);
   }
 
-  // Dibujar datos en espiral
+  // Por este codigo se muestran los datos datos en espiral en el ranking que le dio la gente
   float separacionAngular = TWO_PI / muestraDatos;
 
   for (int i = 0; i < muestraDatos; i++) {
-    // Calcular posiciones
+    // Para calcular posiciones de los datos me ayudo la IA y tuve que volver a investigar conmo funcionaban la funciones de seno y coseno y como habia que modificarlas para poder mostrar o hacer que los datos que son visibles roten
     float angulo = (i * separacionAngular) + rotacion;
     float x1 = centroX + cos(angulo) * radioInterno;
     float y1 = centroY + sin(angulo) * radioInterno;
 
     float longitud = map(datos[i], 0, maximo, 20, 200);
-    float anguloFinal = angulo + 0.1;  // Factor espiral
+    float anguloFinal = angulo + 0.1;  // Este es el factor que muestra las lineas de los marcadores de los datso con distintas longitudes como una espiral de acuerdo a su posición en el ranking que le dio el publico en general 
     float x2 = centroX + cos(anguloFinal) * (radioInterno + longitud);
     float y2 = centroY + sin(anguloFinal) * (radioInterno + longitud);
 
-    // Guardar coordenadas para detección de clic
+    // Con este condigo se coordenadas cuando se haga un clic en un marcador de un dato
     puntosX[circuloActivo][i] = x2;
     puntosY[circuloActivo][i] = y2;
 
-    // Dibujar línea
+    // Dibujo de las lineas de los maracores 
     stroke(colorCirculo, 180);
     strokeWeight(1);
     line(x1, y1, x2, y2);
 
-    // Dibujar punto
+    // Dibujo de los end points seleccionables de las lineas de los marcadores
     if (peliculaSeleccionada.equals(names[i]) && tiempoMostrar > 0) {
-      fill(255);  // Punto destacado
+      fill(255);  // Punto/ marcador seleccionado
       ellipse(x2, y2, 8, 8);
     } else {
       fill(colorCirculo);
       ellipse(x2, y2, 5, 5);
     }
 
-    // Mostrar valor cada 25 puntos
+    // POr esta parte del codigo se muestra inicialmente un marcador cada 25 puntos o valores de acuerdo con la base de datos y se aumenta de la can
     if (i % 25 == 0) {
       fill(255);
       textSize(12);
 
-      // Formato especial para duración
+      // Para este formato tuve que pedir mas ayuda de la IA para poder mostrar los datos de duración sin problema por la combinación de letras con numeros
       if (circuloActivo == 2) {
         int minutos = int(datos[i]);
         text(minutos + " min", x2 + cos(anguloFinal) * 12, y2 + sin(anguloFinal) * 12);
@@ -262,11 +262,11 @@ void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titu
 }
 
 void mousePressed() {
-  // Verificar si se hizo clic en algún punto del círculo activo
+  // con este evento del codigo se verifica si se hizo clic en algún punto del círculo activo (los end points de los marcadores)
   for (int i = 0; i < muestraDatos; i++) {
     if (dist(mouseX, mouseY, puntosX[circuloActivo][i], puntosY[circuloActivo][i]) < 10) {
       peliculaSeleccionada = names[i];
-      tiempoMostrar = 180;  // ~6 segundos a 30 FPS
+      tiempoMostrar = 180;  // ~6 segundos a 30 FPS; esto me lo ayudo a cuadrar la IA para que no haya tanto problema con la visualización de los datos al ser tantos
       return;
     }
   }
@@ -274,22 +274,22 @@ void mousePressed() {
 
 void keyPressed() {
   if (key == ' ') {
-    // Espacio: pausa/reanuda la animación
+    // el evento de la tecla de espacio se usa para pausar y reanudar la animación de la rotación del circulo con los datos
     if (looping) noLoop();
     else loop();
   } else if (key == '+' || key == '=') {
-    // Aumentar cantidad de datos
+    // Evento de la tecla "+" para aumentar cantidad de datos visibles en el circulo
     muestraDatos = min(nSamples, muestraDatos + 50);
   } else if (key == '-' || key == '_') {
-    // Reducir cantidad de datos
+    // Evento de la tecla "-" para reducir cantidad de datos visibles en el circulo
     muestraDatos = max(50, muestraDatos - 50);
   } else if (keyCode == LEFT) {
-    // Flecha izquierda: círculo anterior
+    // Uso del evento de la flecha izquierda para mostrar el círculo con los datos anteriores
     circuloActivo = (circuloActivo - 1 + 4) % 4;
-    peliculaSeleccionada = "";  // Limpiar selección al cambiar de círculo
+    peliculaSeleccionada = "";  // Cambio de selección al cambiar de círculo
   } else if (keyCode == RIGHT) {
-    // Flecha derecha: círculo siguiente
+    // Uso del evento de la flecha derecha para mostrar el círculo con los datos siguientes
     circuloActivo = (circuloActivo + 1) % 4;
-    peliculaSeleccionada = "";  // Limpiar selección al cambiar de círculo
+    peliculaSeleccionada = "";  // Cambio de selección al cambiar de círculo
   }
 }
