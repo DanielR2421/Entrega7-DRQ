@@ -1,111 +1,113 @@
+//Estas son las variables y arrays principales del codigo para cada categoria de la información que muestro de la base de datos
+//Tuve ayuda de la IA para armar parte del codigo ya que había unas variables y arrays que habia que adaptara para que leyera los datos correctamente (esta fue el tiempo de duración de la pelicula porque se combinaron numeros con letras).
 Table table;
 int nSamples;
-float[] rank;
-String[] names;  // Para almacenar nombres de películas
-float[] rating;
-float[] duration;
-float[] metaScore;
+float[] rank; //Este es el array del ranking de IMDB de las peliculas van del 1 al 1000
+String[] names;  // Este string es para almacenar nombres de películas
+float[] rating; // Array del rating o clasificación que le dio el pubclico en general a las peliculas
+float[] duration; //Array para la duración de las peliculas
+float[] metaScore; //Array para la calificación que le dieron los criritcos a las peliculas
 
-// Variables para la visualización
-float radioInterno = 120;  
+// Variables para la visualización de los circulos al igual que de las lineas que indican cual pelicuala es cual
+float radioInterno = 120;
 float rotacion = 0;
-int muestraDatos = 250;  
+int muestraDatos = 250;  //cuantos datos se muestran inicialmente (lineas que salen del circulo principal).
 
 // Centro del canvas
 float centroX, centroY;
 
-// Índice del círculo actualmente mostrado (0: Rank, 1: Rating, 2: Duration, 3: Metascore)
+// Índice del círculo que esta sindo mostrado en la pantalla (0: Rank, 1: Rating, 2: Duration, 3: Metascore)
 int circuloActivo = 0;
 
 // Colores para cada círculo
 color[] colores = {
-  color(100, 200, 255),  // Azul para rank
-  color(255, 100, 100),  // Rojo para rating
-  color(100, 255, 100),  // Verde para duration
+  color(100, 200, 255), // Azul para rank
+  color(255, 100, 100), // Rojo para rating
+  color(100, 255, 100), // Verde para duration
   color(255, 255, 100)   // Amarillo para metascore
 };
 
-// Títulos para cada círculo
+// Títulos para cada círculo de cada categoria que se muestra
 String[] titulos = {"Rank", "Rating", "Duration", "Metascore"};
 
-// Variables para mostrar información al hacer clic
+// Variables para mostrar información al hacer clic en cada linea con el punto que representa cada pelicula
 String peliculaSeleccionada = "";
 int tiempoMostrar = 0;
 
-// Arrays para coordenadas de puntos
+// Arrays para coordenadas de puntos de las peliculas el 1000 se utiliza ya que hay 1000 peliculas en la base de datso
 float[][] puntosX = new float[4][1000];  // [círculo][punto]
 float[][] puntosY = new float[4][1000];
 
 void setup() {
-  size(1200, 900);  // Canvas ampliado
-  
-  // Calcular el centro del canvas
+  size(1200, 900);
+
+  // Ubicación del centro del canvas
   centroX = width/2;
   centroY = height/2;
-  
+
   // Cargar los datos
   table = loadTable("imdb_kaggle.csv", "header");
   nSamples = table.getRowCount();
   muestraDatos = min(nSamples, muestraDatos);
-  
-  // Inicializamos los arrays
+
+  // Inicializamción de todos los arrays funcionales de los datos que se visualizan
   rank = new float[nSamples];
   names = new String[nSamples];
   rating = new float[nSamples];
   duration = new float[nSamples];
   metaScore = new float[nSamples];
-  
-  // Asignamos los datos
+
+  // Asignación de los datos con condiciones normales (osea que son solo numeros sin letras)
   for (int i = 0; i < nSamples; i++) {
     rank[i] = table.getFloat(i, "rank");
     names[i] = table.getString(i, "name");
     rating[i] = table.getFloat(i, "rating");
-    
-    // Asegurar que los datos de duración se cargan correctamente
-    // Asumimos que la duración podría estar como String en el CSV
+
+    // Aqui se asume que la duración de cada pleicula se puede organizar como un String en el CSV ya que se combinan numeros con letras
     String durStr = table.getString(i, "duration");
     if (durStr != null && !durStr.trim().isEmpty()) {
-      // Eliminar cualquier texto adicional (como "min" o "minutes")
+      // Aquí se eliminan cualquier texto adicional que esten en la base de datos como "min" o "minutes"; Esto es lo que digo que me toco pedirle ayuda a la IA porque usando solo la base de la clase no supe como visualizar los datos que combinan numeros con letras
       durStr = durStr.replaceAll("[^0-9]", "");
       try {
         duration[i] = Float.parseFloat(durStr);
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
         duration[i] = 0; // Valor por defecto si hay error
         println("Error en duración para película " + names[i] + ": " + durStr);
       }
     } else {
-      // Intentar cargar directamente como float si está disponible así
+      // Aca se intentan cargar los datos de la duración directamente como float si está disponible así, por lo mismo se combinan numeros con letras por lo que s fuera mas sencillo no se mostrarian los datos bien
       duration[i] = table.getFloat(i, "duration");
     }
-    
+
     metaScore[i] = table.getFloat(i, "Metascore");
   }
-  
-  // Verificar los datos de duración después de cargarlos
+
+  // Esta se es una verificación para ver si los datos de duración se muestran bien después de cargarlos
   println("Verificando datos de duración:");
   for (int i = 0; i < min(10, nSamples); i++) {
     println("Película " + names[i] + ": " + duration[i] + " minutos");
   }
-  
+
   textAlign(CENTER, CENTER);
   frameRate(30);
-  
+
   println("Canvas size: " + width + "x" + height);
   println("Centro del canvas: " + centroX + ", " + centroY);
 }
 
 void draw() {
   background(0);
-  
-  // Actualizar rotación
+
+  // Esta es la velocidad de la rotación de los circulos con las graficas 
   rotacion += 0.002;
-  
-  // Dibujar título principal
+
+  // título principal de los datos mostrados 
   fill(255);
   textSize(40);  // Tamaño aumentado
   textAlign(CENTER, CENTER);
-  text("IMDB Movies Visualization", width/2, 80);
-  
+  text("Top 1000 IMDB Movies Visualization", width/2, 80);
+
   // Dibujar el círculo activo
   if (circuloActivo == 0) {
     dibujarCirculo(rank, 1000, colores[0], titulos[0]);     // Rank
@@ -116,26 +118,26 @@ void draw() {
   } else if (circuloActivo == 3) {
     dibujarCirculo(metaScore, 100, colores[3], titulos[3]); // Metascore
   }
-  
+
   // Indicador de círculo activo
   drawCircleIndicator();
-  
+
   // Actualizar tiempo de visualización del nombre
   if (tiempoMostrar > 0) {
     tiempoMostrar--;
   }
-  
+
   // Instrucciones en las esquinas inferiores con tamaño agrandado
   fill(200);
   textSize(18);  // Tamaño aumentado
   textAlign(LEFT);
   text("Haz clic para ver nombres", 30, height - 30);
   text("Espacio: Pausa", 30, height - 60);
-  
+
   textAlign(RIGHT);
   text("Flechas ◄ ► cambiar datos", width - 30, height - 30);
   text("+/-: Ajustar cantidad", width - 30, height - 60);
-  
+
   // Restablecer alineación
   textAlign(CENTER, CENTER);
 }
@@ -145,10 +147,10 @@ void drawCircleIndicator() {
   float indicatorY = height - 80;
   float spacing = 30;
   float startX = width/2 - (spacing * 1.5);
-  
+
   for (int i = 0; i < 4; i++) {
     float x = startX + (i * spacing);
-    
+
     // Dibujar círculo con el color correspondiente
     if (i == circuloActivo) {
       // Círculo activo: más grande y lleno
@@ -170,7 +172,7 @@ void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titu
   stroke(colorCirculo, 100);
   strokeWeight(2);
   ellipse(centroX, centroY, radioInterno * 2, radioInterno * 2);
-  
+
   // Dibujar círculos concéntricos
   noFill();
   stroke(colorCirculo, 40);
@@ -179,61 +181,61 @@ void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titu
     float radio = radioInterno + (i * 80);
     ellipse(centroX, centroY, radio * 2, radio * 2);
   }
-  
+
   // Mostrar el título de la categoría dentro del círculo central
   fill(colorCirculo);
   textSize(28);  // Tamaño aumentado para el título de la categoría
   text(titulo, centroX, centroY - 15);  // Subir el título un poco
-  
+
   // Mostrar nombre de película seleccionada debajo del título
   if (peliculaSeleccionada != "" && tiempoMostrar > 0) {
     fill(255, 255, 0);  // Amarillo para destacar
     textSize(16);  // Tamaño adecuado para el título de la película
-    
+
     // Limitar el texto si es muy largo
     String nombreMostrar = peliculaSeleccionada;
     if (nombreMostrar.length() > 25) {
       nombreMostrar = nombreMostrar.substring(0, 22) + "...";
     }
-    
+
     // Posicionar debajo del título de la categoría
     text(nombreMostrar, centroX, centroY + 15);
   }
-  
+
   // Dibujar marcadores
   textSize(14);
   for (int i = 0; i < 12; i++) {
     float angulo = map(i, 0, 12, 0, TWO_PI) + rotacion;
     float x = centroX + cos(angulo) * (radioInterno * 0.8);
     float y = centroY + sin(angulo) * (radioInterno * 0.8);
-    
+
     fill(colorCirculo);
     text(i+1, x, y);
   }
-  
+
   // Dibujar datos en espiral
   float separacionAngular = TWO_PI / muestraDatos;
-  
+
   for (int i = 0; i < muestraDatos; i++) {
     // Calcular posiciones
     float angulo = (i * separacionAngular) + rotacion;
     float x1 = centroX + cos(angulo) * radioInterno;
     float y1 = centroY + sin(angulo) * radioInterno;
-    
+
     float longitud = map(datos[i], 0, maximo, 20, 200);
     float anguloFinal = angulo + 0.1;  // Factor espiral
     float x2 = centroX + cos(anguloFinal) * (radioInterno + longitud);
     float y2 = centroY + sin(anguloFinal) * (radioInterno + longitud);
-    
+
     // Guardar coordenadas para detección de clic
     puntosX[circuloActivo][i] = x2;
     puntosY[circuloActivo][i] = y2;
-    
+
     // Dibujar línea
     stroke(colorCirculo, 180);
     strokeWeight(1);
     line(x1, y1, x2, y2);
-    
+
     // Dibujar punto
     if (peliculaSeleccionada.equals(names[i]) && tiempoMostrar > 0) {
       fill(255);  // Punto destacado
@@ -242,12 +244,12 @@ void dibujarCirculo(float[] datos, float maximo, color colorCirculo, String titu
       fill(colorCirculo);
       ellipse(x2, y2, 5, 5);
     }
-    
+
     // Mostrar valor cada 25 puntos
     if (i % 25 == 0) {
       fill(255);
       textSize(12);
-      
+
       // Formato especial para duración
       if (circuloActivo == 2) {
         int minutos = int(datos[i]);
